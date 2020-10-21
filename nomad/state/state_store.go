@@ -5684,14 +5684,16 @@ func (s *StateStore) UpsertEvents(index uint64, events *structs.Events) error {
 	return txn.Commit()
 }
 
-func (s *StateStore) DeleteOldEvents(index uint64, keepLatest int) error {
-	txn := s.db.memdb.Txn(true)
-	defer txn.Abort()
-
-	// Get the lastest event, with a reverse iterator
-	iter, err := s.LatestEventsReverse(nil)
-	if err != nil {
+func insertAndPruneEvents(txn *txn, keep int, events *structs.Events) error {
+	// Insert new events
+	if err := txn.Insert("events", events); err != nil {
 		return err
+	}
+
+	// Reverse iterator starting from newest to oldest
+	iter, err := txn.GetReverse("events", "id")
+	if err != nil {
+		return fmt.Errorf("events lookup failed: %v", err)
 	}
 
 	var count int
@@ -5706,7 +5708,7 @@ func (s *StateStore) DeleteOldEvents(index uint64, keepLatest int) error {
 		count += len(e.Events)
 
 		// Count is greater than amount to keep, mark for deletion
-		if count >= keepLatest {
+		if count > keep {
 			oldEvents = append(oldEvents, e)
 		}
 	}
@@ -5717,8 +5719,6 @@ func (s *StateStore) DeleteOldEvents(index uint64, keepLatest int) error {
 		}
 	}
 
-	// TODO is it necessary to update index table here
-	txn.Commit()
 	return nil
 }
 

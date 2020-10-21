@@ -97,7 +97,6 @@ const (
 	ScalingEventRegisterRequestType
 	CSIVolumeClaimBatchRequestType
 	CSIPluginDeleteRequestType
-	EventBatchDeleteRequestType
 )
 
 const (
@@ -9770,12 +9769,6 @@ const (
 
 	// CoreJobForceGC is used to force garbage collection of all GCable objects.
 	CoreJobForceGC = "force-gc"
-
-	// CoreJobEventGC is used for the garbage collection of old events.  We
-	// periodically scan events that are older than the configured amount of
-	// events to keep durable and prune them to keep the table from growing too
-	// large.
-	CoreJobEventGC = "event-gc"
 )
 
 // Evaluation is used anytime we need to apply business logic as a result
@@ -10801,11 +10794,6 @@ type EventStreamRequest struct {
 	Topics map[Topic][]string
 	Index  int
 
-	QueryOptions
-}
-
-type EventGCRequest struct {
-	MaxEvents int
 	QueryOptions
 }
 

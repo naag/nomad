@@ -122,7 +122,6 @@ var basicConfig = &Config{
 		RedundancyZone:            "foo",
 		UpgradeVersion:            "0.8.0",
 		EncryptKey:                "abc",
-		EventGCInterval:           "1m",
 		EnableEventBroker:         helper.BoolToPtr(false),
 		EventBufferSize:           helper.IntToPtr(200),
 		DurableEventCount:         helper.IntToPtr(0),
